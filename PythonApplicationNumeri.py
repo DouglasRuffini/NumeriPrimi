@@ -45,8 +45,6 @@ class ultimoPrimo(bpy.types.Operator):
     bl_category = "Scalar or Vector Panel"
     bl_options = {'REGISTER', 'UNDO'}
     
-    global points 
-    points = None
  
     global verts
     verts = []
@@ -180,15 +178,13 @@ class ultimoPrimo(bpy.types.Operator):
          
         return array
 
-    def vertici(points):
-        if points:
-            for x in range(points.GetNumberOfPoints()):
-                a=[0,0,0]
-                p=points.GetPoint(x,a)
-                verts.append(a)
- 
+    def vertici(array):
+        v = []
        
-        return verts
+        for x in (array):
+            v.append(x)  
+
+        return v
 
     def lati(array):
         global edges
@@ -253,40 +249,40 @@ class ultimoPrimo(bpy.types.Operator):
     #These four functions are used by the dictionary     
     #Queste quattro funzioni servono al dizionario
     
-    def azioneUno(self, vtk, bpy, os):
+    def azioneUno(self, bpy, os):
         global obj        
       
         if(ind=='1'):    
             if (file_name == ""):
                 ultimoPrimo.rimuoviMesh(bpy)
-                ultimoPrimo.associaArray(self, vtk, os)
+                ultimoPrimo.associaArray(self, os)
             
-            obj=ultimoPrimo.caricaMesh(bpy, ultimoPrimo.vertici(points), [], [])   
+            obj=ultimoPrimo.caricaMesh(bpy, ultimoPrimo.vertici(array), [], [])   
 
         return True
         
         
 
-    def azioneDue(self, vtk, bpy, os):
+    def azioneDue(self, bpy, os):
         global obj        
         
         if (ind == '2'): 
             if(file_name == ""):
                 ultimoPrimo.rimuoviMesh(bpy)
-                ultimoPrimo.associaArray(self, vtk, os)
+                ultimoPrimo.associaArray(self, os)
 
-            obj=ultimoPrimo.caricaMesh(bpy, ultimoPrimo.vertici(points), ultimoPrimo.lati(array), []) 
+            obj=ultimoPrimo.caricaMesh(bpy, ultimoPrimo.vertici(array), ultimoPrimo.lati(array), []) 
 
         return True
         
 
-    def azioneTre(self, vtk, bpy, os):
+    def azioneTre(self, bpy, os):
         global obj        
 
         if (ind == '3'):
             if (file_name == ""):
                 ultimoPrimo.rimuoviMesh(bpy)
-                ultimoPrimo.associaArray(self, vtk, os)
+                ultimoPrimo.associaArray(self, os)
             
             ultimoPrimo.facce(array, index)
             obj=ultimoPrimo.caricaMesh(bpy, verts_b, [], faces) 
@@ -342,13 +338,11 @@ class ultimoPrimo(bpy.types.Operator):
         return obj
                
 
-    def associaArray(self, vtk, os):
-        global points
+    def associaArray(self, os):
         global index
         global array
         global file_name
 
-        points = None
         index = 0
         array = []
 
@@ -362,15 +356,8 @@ class ultimoPrimo(bpy.types.Operator):
 
                 array= ultimoPrimo.preparaArray(ultimoPrimo.leggi_file( f ) )
 
-                pts=vtk.vtkPoints()  
-                pts.SetNumberOfPoints(len(array))
-                pts.SetDataTypeToDouble()
+                index = len(array)-1
 
-                for k, pos in enumerate(array):
-                    pts.InsertNextPoint(pos)
-                
-                points = pts
-                index = k
                 ultimoPrimo.chiudi_file(f)
 
     #End your code function
@@ -388,13 +375,12 @@ class ultimoPrimo(bpy.types.Operator):
         return True
      
     def execute(self, context):
-        import vtk
         import bpy
         import os
         global ind
             
-        azione ={'1' : ultimoPrimo.azioneUno(self, vtk, bpy, os), '2' : ultimoPrimo.azioneDue(self, vtk, bpy, os), 
-                 '3' : ultimoPrimo.azioneTre(self, vtk, bpy, os), '4' : ultimoPrimo.azioneQuattro(bpy)}
+        azione ={'1' : ultimoPrimo.azioneUno(self, bpy, os), '2' : ultimoPrimo.azioneDue(self, bpy, os), 
+                 '3' : ultimoPrimo.azioneTre(self, bpy, os), '4' : ultimoPrimo.azioneQuattro(bpy)}
                
         azione.get(ind)
 
