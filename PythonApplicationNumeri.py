@@ -171,10 +171,12 @@ class ultimoPrimo(bpy.types.Operator):
         for riga in s:
             if riga !='':
                 vector = riga.split(" ")
-                a = ((vector[1]).replace(',', '.'))
-                b = ((vector[2]).replace(',', '.'))  
-                c = ((vector[3]).replace(',', '.'))  
-                array.append([float(a), float(b), float(c)])
+                a = ((vector[0]).replace(',', '.'))
+                b = ((vector[1]).replace(',', '.'))
+                c = ((vector[2]).replace(',', '.'))  
+                d = ((vector[3]).replace(',', '.'))
+                #Considera le colonne 2, 3, 4
+                array.append([float(b), float(c), float(d)])
          
         return array
 
