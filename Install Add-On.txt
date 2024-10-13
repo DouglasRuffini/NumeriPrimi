@@ -1,0 +1,58 @@
+############################################################
+ADD-ON FOR BLENDER: PythonApplicationNumeri
+------------------------------------------------------------
+INSTALL EN:Download the latest version of Blender and install it.
+           Open Blender, go to the Menu bar
+           and select Edit->Preferences... Select
+           the Add-ons sidebar, move to the top right and click 
+           Install. Find and select the PythonApplicationNumeri.py 
+           file in the dialog box and click Install Add-on at the bottom right.
+           Check the activation box and close the Preferences window.   
+         
+INSTALL IT:Scaricare l'ultima versione di Blender e installarla.
+           Aprire Blender, portarsi sulla barra dei Menu 
+           e selezionare Modifica->Preferenze... Selezionare 
+           la voce laterale Add-ons, spostarsi in alto a 
+           destra e cliccare Installa. Cercare e selezionare 
+           il file PythonApplicationNumeri.py nella finestra di             
+           dialogo e cliccare Installa Add-on in basso a destra. 
+           Spuntare il riquadro di attivazione e chiudere 
+           la finestra di Preferenze.
+============================================================
+
+
+           Etichette dei bottoni di dialogo
+           Import vertex: riporta i vertici
+           Join vertex to edges: Collega i vertici
+           Join vertex to faces: Genera triangoli in base ai vertici
+           Remuve vertex: Rimuove il Test
+           Vertex y & x long: Considera triangoli su y da test x progressivo lungo = lungo+y e z = 0
+           Vertex y & xz long: Considera triangoli su y da test x e z progressivi lungo = lungo+y 
+           
+           
+           Label Bottom dialog:
+           Import vertex: Returns vertices
+           Join vertex to edges: Connects vertices
+           Join vertex to faces: Generates triangles based on vertices
+           Remove vertex: Removes Test
+           Vertex y & x long: Considers triangles on y from test x progressive long = long+y and z = 0
+           Vertex y & xz long: Considers triangles on y from test x and z progressive long = long+y
+           
+
+           
+UTILIZZO   EN:Move to object mode, or select
+              from the header menu the desired label and
+              from the search dialog box select the
+              Test file to import (*.txt); or you can
+              use the selected Test file by moving
+              to the other labels to use their
+              functions.
+
+UTILIZZO   IT:Spostarsi in modalità oggetto, oppure selezionare
+              dal menu intestazione l'etichetta desiderata e 
+              dalla finestra di dialogo cerca selezionare  il 
+              file Test da importare (*.txt); oppure si può
+              utilizzare il file Test selezionato spostandosi 
+              sugli altri label per poter usufrire delle loro
+              funzioni.
+############################################################

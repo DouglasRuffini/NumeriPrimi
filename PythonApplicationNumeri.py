@@ -23,6 +23,8 @@ class EditorSwitcherMenu(bpy.types.Menu):
         pie.operator("object.import_numeri_primi",text="Import vertex",icon="VIEW3D").activate ="1"       
         pie.operator("object.import_numeri_primi",text="Join vertex to edges",icon="NODETREE").activate ="2"       
         pie.operator("object.import_numeri_primi",text="Join vertex to faces",icon="ACTION").activate ="3"
+        pie.operator("object.import_numeri_primi",text="Vertex y & x long",icon="ACTION").activate ="5"
+        pie.operator("object.import_numeri_primi",text="Vertex y & xz long",icon="ACTION").activate ="6"
         pie.operator("object.import_numeri_primi",text="Remuve vertex",icon="ACTION").activate ="4"
 
 
@@ -34,17 +36,24 @@ class ultimoPrimo(bpy.types.Operator):
     bl_label_two = "Join vertex to edges"
     bl_label_three = "Join vertex to faces"
     bl_label_four = "Remuve vertex"
+    bl_label_five = "Vertex y & x long"
+    bl_label_six = "Vertex y & xz long"
 
     hl_label = "Import vertex"
     hl_label_two = "Join vertex to edges"
     hl_label_three = "Join vertex to faces"
     hl_label_four = "Remuve vertex"
+    hl_label_five = "Vertex y & x long"
+    hl_label_six = "Vertex y & xz long"
 
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
     bl_category = "Scalar or Vector Panel"
     bl_options = {'REGISTER', 'UNDO'}
     
+
+    global verts_b
+    verts_b = []
  
     global verts
     verts = []
@@ -70,6 +79,8 @@ class ultimoPrimo(bpy.types.Operator):
     global index
     index =0
     
+    global array
+    array= []
 
     #Set restrictions on the file dialog 
     #Impostare le restrizioni alla finestra di dialogo file
@@ -164,6 +175,7 @@ class ultimoPrimo(bpy.types.Operator):
             print("L'errore e' : ", e)
 
     def preparaArray(f):
+
         global array
         array=[]
         s =f.split("\n")
@@ -195,6 +207,56 @@ class ultimoPrimo(bpy.types.Operator):
 
         return edges
 
+    def facce_C(array, k):
+        global verts_b
+        global faces
+
+        verts_b = []
+        faces = []  
+        h=0
+        indice = 0
+        linea = 0
+        
+        for i in array:
+            if h<=k:
+                linea = linea + i[1]
+                
+                verts_b.append( (linea, 0, 0) ) 
+                verts_b.append( (0, i[1], 0) )
+                verts_b.append( (0, 0, linea) )
+                
+                faces.append([indice, indice+1, indice+2])
+                indice = indice + 3
+
+            h = h+1
+
+        return faces       
+
+    def facce_B(array, k):
+        global verts_b
+        global faces
+
+        verts_b = []
+        faces = []  
+        h=0
+        indice = 0
+        linea = 0
+        
+        for i in array:
+            if h<=k:
+                linea = linea + i[1]
+                
+                verts_b.append( (linea, 0, 0) ) 
+                verts_b.append( (0, i[1], 0) )
+                verts_b.append( (0, 0, 0) )
+                
+                faces.append([indice, indice+1, indice+2])
+                indice = indice + 3
+
+            h = h+1
+
+        return faces       
+
     def facce(array, k):
         global verts_b
         global faces
@@ -203,46 +265,59 @@ class ultimoPrimo(bpy.types.Operator):
         faces = []  
         h=0
         indice = 0
-
+        
         for i in array:
             if h<=k:
                 verts_b.append( (i[0], 0, 0) ) 
                 verts_b.append( (0, i[1], 0) )
-                verts_b.append( (0, 0, i[2]) )
-                faces.append([indice, indice+1, indice+2])
-                indice = indice + 3
+                verts_b.append( (0, 0, i[2]) )                   
+                
+            faces.append([indice, indice+1, indice+2])
+            indice = indice + 3
 
             h = h+1
 
-        return faces     
+        return faces       
     
     def rimuoviMesh(bpy):
         #Removes the produced mesh
         #Rimuove la mesh prodotta
         global obj
         global file_name
- 
+        global array
+        array=[]
+    
   
-        if obj is not None:     
-            obj_data = obj.data
+        #if obj is not None:     
+        #obj_data = obj.data
             #Remuve object
             #Rimuovo l'oggetto            
-            bpy.data.objects.remove(obj)
+        #bpy.data.objects.remove(obj)
             #Then its data
             #Anche i suoi dati
-            bpy.data.meshes.remove(obj_data)   
+        #bpy.data.meshes.remove(obj_data)   
             
-            for o in bpy.data.objects: 
-                if o.type == 'MESH':
-                    str=o.name
+        for o in bpy.data.objects: 
+            if o.type == 'MESH':
+                str=o.name
+                if str.find("Primi")!= -1:
+                    obj_data = o.data
+                    bpy.data.objects.remove(o)
+                    bpy.data.meshes.remove(obj_data)  
+                    
+        if bpy.data.collections.get("Collection"):
+            collection_to_remove = bpy.data.collections.get('Collection')
+            for object in collection_to_remove.objects:
+                if (object.name !='Camera') or (object.name !='Light'):
+                    str=object.name
                     if str.find("Primi")!= -1:
-                        obj_data = o.data
-                        bpy.data.objects.remove(o)
-                        bpy.data.meshes.remove(obj_data)   
+                        obj_data = object.data
+                        bpy.data.objects.remove(object)
+                        bpy.data.meshes.remove(obj_data)
                         
-            obj=None
-
+        obj=None
         file_name=""
+        
 
         return obj
 
@@ -304,7 +379,33 @@ class ultimoPrimo(bpy.types.Operator):
                 file_name="" 
             
             
-    
+    def azioneCinque(self, bpy, os):
+        global obj        
+
+        if (ind == '5'):
+            if (file_name == ""):
+                ultimoPrimo.rimuoviMesh(bpy)
+                ultimoPrimo.associaArray(self, os)
+            
+            ultimoPrimo.facce_B(array, index)
+            obj=ultimoPrimo.caricaMesh(bpy, verts_b, [], faces) 
+
+        return True
+
+
+    def azioneSei(self, bpy, os):
+        global obj        
+
+        if (ind == '6'):
+            if (file_name == ""):
+                ultimoPrimo.rimuoviMesh(bpy)
+                ultimoPrimo.associaArray(self, os)
+            
+            ultimoPrimo.facce_C(array, index)
+            obj=ultimoPrimo.caricaMesh(bpy, verts_b, [], faces) 
+
+        return True
+
 
     def caricaMesh(bpy, verts_, edges_, faces_ ):
         global mash
@@ -344,7 +445,7 @@ class ultimoPrimo(bpy.types.Operator):
         global index
         global array
         global file_name
-
+        
         index = 0
         array = []
 
@@ -382,7 +483,8 @@ class ultimoPrimo(bpy.types.Operator):
         global ind
             
         azione ={'1' : ultimoPrimo.azioneUno(self, bpy, os), '2' : ultimoPrimo.azioneDue(self, bpy, os), 
-                 '3' : ultimoPrimo.azioneTre(self, bpy, os), '4' : ultimoPrimo.azioneQuattro(bpy)}
+                 '3' : ultimoPrimo.azioneTre(self, bpy, os), '4' : ultimoPrimo.azioneQuattro(bpy), 
+                 '5' : ultimoPrimo.azioneCinque(self, bpy, os) , '6' : ultimoPrimo.azioneSei(self, bpy, os)}
                
         azione.get(ind)
 
@@ -398,7 +500,9 @@ class ultimoPrimo(bpy.types.Operator):
         ind = self.activate
         
                                 
-        if (ind=='1' and  file_name == "") or (ind=='2' and file_name == "") or (ind=='3' and file_name == "") or (ind=='5' and file_name == ""):  
+        if (ind=='1' and  file_name == "") or (ind=='2' and file_name == "") \
+        or (ind=='3' and file_name == "")  \
+        or (ind=='5' and file_name == "") or (ind=='6' and file_name == ""):  
             #Opens the file dialog
             #Apre la finestra di dialogo file
             context.window_manager.fileselect_add(self)
@@ -417,6 +521,8 @@ def menu_func(self, context):
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label, icon="VIEW3D").activate = "1"
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_two, icon="NODETREE").activate="2"
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_three, icon="ACTION").activate="3"
+    self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_five, icon="ACTION").activate="5"
+    self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_six, icon="ACTION").activate="6"
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_four, icon="ACTION").activate="4"
  
 
@@ -428,7 +534,9 @@ def menu_header(self, context):
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label, icon="VIEW3D").activate = "1"
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label_two, icon="NODETREE").activate="2"
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label_three, icon="ACTION").activate="3"
-    self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_four, icon="ACTION").activate="4"
+    self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label_five, icon="ACTION").activate="5"
+    self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label_six, icon="ACTION").activate="6"
+    self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label_four, icon="ACTION").activate="4"
  
 
 #Store keymaps 
