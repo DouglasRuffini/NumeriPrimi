@@ -26,7 +26,7 @@ class EditorSwitcherMenu(bpy.types.Menu):
         pie.operator("object.import_numeri_primi",text="Vertex y & x long",icon="ACTION").activate ="5"
         pie.operator("object.import_numeri_primi",text="Vertex y & xz long",icon="ACTION").activate ="6"
         pie.operator("object.import_numeri_primi",text="Remuve vertex",icon="ACTION").activate ="4"
-        pie.operator("object.import_numeri_primi",text="Periodic function",icon="ACTION").activate ="7"
+
 
 class ultimoPrimo(bpy.types.Operator):
 
@@ -38,7 +38,6 @@ class ultimoPrimo(bpy.types.Operator):
     bl_label_four = "Remuve vertex"
     bl_label_five = "Vertex y & x long"
     bl_label_six = "Vertex y & xz long"
-    bl_label_seven = "Periodic function"
 
     hl_label = "Import vertex"
     hl_label_two = "Join vertex to edges"
@@ -46,7 +45,6 @@ class ultimoPrimo(bpy.types.Operator):
     hl_label_four = "Remuve vertex"
     hl_label_five = "Vertex y & x long"
     hl_label_six = "Vertex y & xz long"
-    hl_label_seven = "Periodic function"
 
     bl_space_type = 'VIEW_3D'
     bl_region_type = 'UI'
@@ -323,68 +321,6 @@ class ultimoPrimo(bpy.types.Operator):
 
         return obj
 
-    #_____________________________________________
-    #Trova la funzioni periodica
-    def caricaFunzionePeriodica(bpy, array, os):
-        import numpy as np
-        import matplotlib.pyplot as plt
-
-        global edges  
-        global verts_b
-        global faces
-
-        edges = []
-        verts_b = []
-        faces = []  
-
-        # Utilizziamo solo la colonna 'Np1' per semplicit√† nella rilevazione della periodicit√†.
-        y_values = [item[2] for item in array]  # Colonna Np1
-
-        if len(y_values) < 2:
-            print("Dataset insufficiente per analizzare la periodicit√†.")
-            return False
-
-        # Trasformata di Fourier per analizzare la periodicit√†.
-        y_fft = np.fft.fft(y_values)
-        frequencies = np.fft.fftfreq(len(y_values))
-        magnitudes = np.abs(y_fft)
-
-        # Determina la frequenza dominante (ignora la frequenza zero)
-        dominant_freq_idx = np.argmax(magnitudes[1:]) + 1
-        dominant_freq = frequencies[dominant_freq_idx]
-
-        # Verifica della periodicit√† in base alla frequenza dominante.
-        if dominant_freq != 0:
-            period = abs(1 / dominant_freq)
-            print(f"Frequenza dominante trovata: {dominant_freq:.4f}, periodo stimato: {period:.4f}")
-            print("I dati mostrano un comportamento periodico.")
-        else:
-            print("Non √® stata rilevata periodicit√† nei dati.")
-    
-        # Step 1: Generazione del Grafico e Salvataggio
-        #image_path = '/tmp/sequenza_np1_grafico.png'  # Specifica un percorso per l'immagine
-
-        output_dir = "D:/path/to/output/"  # Sostituisci con il percorso che preferisci
-        os.makedirs(output_dir, exist_ok=True)  # Crea la directory se non esiste
-        image_path = os.path.join(output_dir, "sequenza_np1_grafico.png")
-
-        plt.figure(figsize=(12, 6))
-        plt.plot(y_values, marker='o', linestyle='-', color='b')
-        plt.title("Sequenza di valori in 'y'")
-        plt.xlabel("Indice")
-        plt.ylabel("Valore")
-        plt.grid()
-        plt.savefig(image_path)
-        plt.close()
- 
-        # Crea i vertici e le linee
-        verts_b = [(i, y, 0) for i, y in enumerate(y_values)]  # (x, y, z)
-        edges = [(i, i + 1) for i in range(len(verts_b) - 1)]
-        
-        return True  # Periodicit√† analizzata e grafico caricato con successo
-
-    #_____________________________________________
-
 
     #---------------------------------------------- 
     #These four functions are used by the dictionary     
@@ -469,19 +405,6 @@ class ultimoPrimo(bpy.types.Operator):
             obj=ultimoPrimo.caricaMesh(bpy, verts_b, [], faces) 
 
         return True
-    
-    def azioneSette(self, bpy, os):
-        global obj        
-        
-        if (ind == '7'): 
-            if(file_name == ""):
-                ultimoPrimo.rimuoviMesh(bpy)
-                ultimoPrimo.associaArray(self, os)
-
-            ultimoPrimo.caricaFunzionePeriodica(bpy, array, os) 
-            obj=ultimoPrimo.caricaMesh(bpy, verts_b, edges, []) 
-
-        return True
 
 
     def caricaMesh(bpy, verts_, edges_, faces_ ):
@@ -499,7 +422,7 @@ class ultimoPrimo(bpy.types.Operator):
         #Associa al materiale il colore Rosso 
         mat.diffuse_color = (1.0, 0.0, 0.0, 1.0) 
 
-        #Aggiungi la proprietÔøΩ all'oggetto
+        #Aggiungi la propriet‡ all'oggetto
         obj.data.materials.append(mat)
 
         #Posiziona l'oggetto
@@ -561,8 +484,7 @@ class ultimoPrimo(bpy.types.Operator):
             
         azione ={'1' : ultimoPrimo.azioneUno(self, bpy, os), '2' : ultimoPrimo.azioneDue(self, bpy, os), 
                  '3' : ultimoPrimo.azioneTre(self, bpy, os), '4' : ultimoPrimo.azioneQuattro(bpy), 
-                 '5' : ultimoPrimo.azioneCinque(self, bpy, os) , '6' : ultimoPrimo.azioneSei(self, bpy, os), 
-                 '7' : ultimoPrimo.azioneSette(self, bpy, os)}
+                 '5' : ultimoPrimo.azioneCinque(self, bpy, os) , '6' : ultimoPrimo.azioneSei(self, bpy, os)}
                
         azione.get(ind)
 
@@ -580,8 +502,7 @@ class ultimoPrimo(bpy.types.Operator):
                                 
         if (ind=='1' and  file_name == "") or (ind=='2' and file_name == "") \
         or (ind=='3' and file_name == "")  \
-        or (ind=='5' and file_name == "") or (ind=='6' and file_name == "") \
-        or (ind=='7' and file_name == "") :  
+        or (ind=='5' and file_name == "") or (ind=='6' and file_name == ""):  
             #Opens the file dialog
             #Apre la finestra di dialogo file
             context.window_manager.fileselect_add(self)
@@ -603,7 +524,7 @@ def menu_func(self, context):
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_five, icon="ACTION").activate="5"
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_six, icon="ACTION").activate="6"
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_four, icon="ACTION").activate="4"
-    self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.bl_label_seven, icon="ACTION").activate="7"
+ 
 
 def menu_header(self, context):
     #This function create the buttons in the ui
@@ -616,7 +537,7 @@ def menu_header(self, context):
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label_five, icon="ACTION").activate="5"
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label_six, icon="ACTION").activate="6"
     self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label_four, icon="ACTION").activate="4"
-    self.layout.operator(ultimoPrimo.bl_idname, text =ultimoPrimo.hl_label_seven, icon="ACTION").activate="7"
+ 
 
 #Store keymaps 
 #Memorizza le mappe dei tasti 
@@ -632,7 +553,7 @@ def register():
     
     #Note that in background mode (no GUI available), keyconfigs are not available either,
     #so we have to check this to avoid nasty errors in background case.
-    #Tieni presente che in modalitÔøΩ background (nessuna GUI disponibile), nemmeno i keyconfig sono disponibili,
+    #Tieni presente che in modalit‡ background (nessuna GUI disponibile), nemmeno i keyconfig sono disponibili,
     #quindi dobbiamo verificarlo per evitare errori spiacevoli nel caso in background.
     kc = wm.keyconfigs.addon
     
@@ -657,8 +578,8 @@ def unregister():
     #Questa funzione deregistra la classe
     #Note: when unregistering, it's usually good practice to do it in reverse order you registered.
     #Can avoid strange issues like keymap still referring to operators already unregistered...
-    #Nota: quando si annulla la registrazione, di solito ÔøΩ buona norma farlo nell'ordine inverso a quello della registrazione.
-    #PuÔøΩ evitare problemi strani come la mappatura dei tasti che si riferisce ancora a operatori giÔøΩ non registrati...
+    #Nota: quando si annulla la registrazione, di solito Ë buona norma farlo nell'ordine inverso a quello della registrazione.
+    #PuÚ evitare problemi strani come la mappatura dei tasti che si riferisce ancora a operatori gi‡ non registrati...
     #Handle the keymap
     #Gestisci la mappa dei tasti
     wm = bpy.context.window_manager
