@@ -40,7 +40,7 @@ INSTALL IT:Scaricare l'ultima versione di Blender e installarla.
            
 
            
-UTILIZZO   EN:Move to object mode, or select
+USE   EN:Move to object mode, or select
               from the header menu the desired label and
               from the search dialog box select the
               Test file to import (*.txt); or you can
